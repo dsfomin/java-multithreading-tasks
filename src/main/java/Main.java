@@ -1,29 +1,29 @@
-import Lab3.a.Lab3AMain;
+import Lab_1.Lab3.a.Lab3AMain;
 
 public class Main  {
 
     public static void main(String[] args) {
 
-        //Lab1
+        //Lab_1.Lab1
         //Lab1AMain.main(args);
         //Lab1BMain.main(args);
 
-        //Lab2
+        //Lab_1.Lab2
         //Lab2AMain.main(args);
         //GO B
         //Lab2CMain.main(new String[]{"10"});
 
-        //Lab3
+        //Lab_1.Lab3
         Lab3AMain.main(args);
         //Lab3BMain.main(args);
         //GO C
 
-        //Lab4
+        //Lab_1.Lab4
         //Lab4AMain.main(args);
         //GO B
         //GO C
 
-        //Lab5
+        //Lab_1.Lab5
         //Lab5AMain.main(args);
         //Lab5BMain.main(args);
         //Lab5CMain.main(args);

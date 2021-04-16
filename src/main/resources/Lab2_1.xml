@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<autoshow>
+    <manufacturer id="manufacturer0" name="BMW">
+        <brand id="brand0">
+            <name>X1</name>
+            <fuel_consumption>7.1</fuel_consumption>
+            <weight>1400</weight>
+            <acceleration>9.7</acceleration>
+            <horsepower>140</horsepower>
+        </brand>
+        <brand id="brand1">
+            <name>X2</name>
+            <fuel_consumption>7.3</fuel_consumption>
+            <weight>1500</weight>
+            <acceleration>9.2</acceleration>
+            <horsepower>150</horsepower>
+        </brand>
+    </manufacturer>
+    <manufacturer id="manufacturer1" name="Audi">
+        <brand id="brand3">
+            <name>A1</name>
+            <fuel_consumption>4.1</fuel_consumption>
+            <weight>1300</weight>
+            <acceleration>5.2</acceleration>
+            <horsepower>130</horsepower>
+        </brand>
+        <brand id="brand4">
+            <name>A2</name>
+            <fuel_consumption>8.3</fuel_consumption>
+            <weight>1400</weight>
+            <acceleration>3.6</acceleration>
+            <horsepower>150</horsepower>
+        </brand>
+    </manufacturer>
+    <manufacturer id="manufacturer2" name="Volkswagen">
+        <brand id="brand5">
+            <name>G1</name>
+            <fuel_consumption>6.1</fuel_consumption>
+            <weight>1200</weight>
+            <acceleration>10.7</acceleration>
+            <horsepower>120</horsepower>
+        </brand>
+        <brand id="brand6">
+            <name>G2</name>
+            <fuel_consumption>7.6</fuel_consumption>
+            <weight>1500</weight>
+            <acceleration>9.7</acceleration>
+            <horsepower>150</horsepower>
+        </brand>
+    </manufacturer>
+</autoshow>

@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name='autoshow'>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name='manufacturer' type="ManufacturerType" minOccurs='0' maxOccurs='unbounded' />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="ManufacturerType">
+        <xs:sequence>
+            <xs:element name='brand' type="BrandType" minOccurs='0' maxOccurs='unbounded' />
+        </xs:sequence>
+        <xs:attribute name='id' type='xs:ID'/>
+        <xs:attribute name='name' type='xs:string'/>
+    </xs:complexType>
+
+    <xs:complexType name="BrandType">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="fuel_consumption" type="xs:double"/>
+            <xs:element name="weight" type="xs:positiveInteger"/>
+            <xs:element name="acceleration" type="xs:double"/>
+            <xs:element name="horsepower" type="xs:positiveInteger"/>
+        </xs:sequence>
+        <xs:attribute name='id' type='xs:ID'/>
+    </xs:complexType>
+</xs:schema>

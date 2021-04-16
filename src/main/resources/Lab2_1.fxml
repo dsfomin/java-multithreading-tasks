@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="200" prefWidth="300" xmlns="http://javafx.com/javafx/10.0.2-internal"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="Lab_2.Lab1.Controller">
+    <Button fx:id="addManufacturerButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#addManufacturer" text="Add Manufacturer"/>
+    <Button fx:id="saveDataButton" layoutX="10.0" layoutY="50.0" mnemonicParsing="false" onAction="#save" text="Save"/>
+    <Label fx:id="saveResult" layoutX="70.0" layoutY="54.0"/>
+    <Button fx:id="addCarBrandButton" layoutX="10.0" layoutY="90.0" mnemonicParsing="false" onAction="#addCarBrand" text="Add Brand"/>
+    <Button fx:id="deleteManufacturerButton" layoutX="10.0" layoutY="130.0" mnemonicParsing="false" onAction="#deleteManufacturer" text="Delete Manufacturer"/>
+    <Button fx:id="getManufacturersButton" layoutX="10.0" layoutY="170.0" mnemonicParsing="false" onAction="#getManufacturers" text="Show Manufacturers"/>
+</AnchorPane>
