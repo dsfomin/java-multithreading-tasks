@@ -1,4 +1,4 @@
-package Lab_2.Lab1;
+package Lab_2.AutoShow;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;

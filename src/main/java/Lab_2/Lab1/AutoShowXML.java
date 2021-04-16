@@ -1,4 +1,8 @@
-package Lab_2.Lab1.AutoShow;
+package Lab_2.Lab1;
+
+import Lab_2.AutoShow.AutoShow;
+import Lab_2.AutoShow.Brand;
+import Lab_2.AutoShow.Manufacturer;
 
 import javax.management.openmbean.KeyAlreadyExistsException;
 import javax.xml.bind.JAXBException;
@@ -12,19 +16,17 @@ import java.util.List;
 
 @XmlRootElement(name = "autoshow")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class AutoShow {
-    @XmlElement(name = "manufacturer")
-    private List<Manufacturer> manufacturers;
+public class AutoShowXML implements AutoShow {
+    private final static String XML = "src/main/resources/Lab_2_1/Lab2_1.xml";
 
-    public AutoShow() {
+    @XmlElement(name = "manufacturer")
+    private final List<Manufacturer> manufacturers;
+
+    public AutoShowXML() {
         manufacturers = new ArrayList<>();
     }
 
-    public void saveDataToXML(String filename) throws JAXBException, IOException {
-        DOMParser dom = new DOMParser(filename);
-        dom.saveToXML(this);
-    }
-
+    @Override
     public void addManufacturer(Manufacturer manufacturer) {
         if (!containsManufacturerId(manufacturers, manufacturer.getId())) {
             manufacturers.add(manufacturer);
@@ -33,6 +35,7 @@ public class AutoShow {
         }
     }
 
+    @Override
     public void addCarBrandToManufacturer(Brand carBrand, String manufacturerId) {
         Manufacturer manufacturerFromDb = manufacturers.stream()
                 .filter(o -> o.getId().equals(manufacturerId))
@@ -47,24 +50,26 @@ public class AutoShow {
         }
     }
 
+    @Override
     public void deleteManufacturer(String manufacturerId) {
         if (!manufacturers.removeIf(s -> s.getId().equals(manufacturerId))) {
             throw new IllegalArgumentException("manufacturer with such id: " + manufacturerId + " doesn't exists!");
         }
     }
 
+    @Override
     public void deleteBrandManufacturer(Brand carBrand, Manufacturer manufacturer) {
         manufacturer.getBrands().remove(carBrand);
     }
 
+    @Override
     public List<Manufacturer> getManufacturers() {
         return manufacturers;
     }
 
-    public void loadDataFromXML(String filename) {
-        DOMParser dom = new DOMParser(filename);
-        dom.parse();
-        manufacturers = dom.getAutoShow().getManufacturers();
+    public void save() throws JAXBException, IOException {
+        DOMParser dom = new DOMParser(XML);
+        dom.saveToXML(this);
     }
 
     private boolean containsManufacturerId(final List<Manufacturer> list, final String id){

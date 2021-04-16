@@ -1,8 +1,9 @@
-package Lab_2.Lab1;
+package Lab_2.Lab2;
 
 import Lab_2.AutoShow.AutoShow;
 import Lab_2.AutoShow.Brand;
 import Lab_2.AutoShow.Manufacturer;
+import Lab_2.Lab1.MyValidator;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -18,31 +19,13 @@ import javafx.stage.Stage;
 
 import java.sql.SQLException;
 
-public class Controller {
-    private final static String XML = "src/main/resources/Lab_2_1/Lab2_1.xml";
-    private final static String XSD = "src/main/resources/Lab_2_1/Lab2_1.xsd";
-    private final static MyValidator validate = new MyValidator(XML, XSD);
-
+public class ControllerJDBC
+{
     private final static String LINE_SEPARATOR = System.lineSeparator();
-
     private final AutoShow autoShow;
-
-    public Controller() {
-        if (validate.isValid()) {
-            System.out.println("XML is valid with this XSD");
-        } else {
-            throw new IllegalStateException("XML is invalid with XSD");
-        }
-
-        DOMParser dom = new DOMParser(XML);
-        dom.parse();
-        autoShow = dom.getAutoShow();
-    }
 
     @FXML
     public Button addManufacturerButton;
-    @FXML
-    public Button saveDataButton;
     @FXML
     public Button addCarBrandButton;
     @FXML
@@ -50,7 +33,14 @@ public class Controller {
     @FXML
     public Button getManufacturersButton;
     @FXML
+    public Button saveDataButton;
+    @FXML
     public Label saveResult;
+
+
+    public ControllerJDBC() {
+        autoShow = new AutoShowJDBC();
+    }
 
     public void addManufacturer(ActionEvent actionEvent) {
         //Creating a GridPane container
@@ -298,15 +288,15 @@ public class Controller {
     private String printAllManufacturers(AutoShow autoShow) throws SQLException {
         StringBuilder sb = new StringBuilder();
         for (Manufacturer m : autoShow.getManufacturers()) {
-            sb.append('\t').append("Id: ").append(m.getId()).append(LINE_SEPARATOR);
-            sb.append('\t').append("Name: ").append(m.getName()).append(LINE_SEPARATOR);
+            sb.append('\t').append("Id: ").append(m.getId()).append(ControllerJDBC.LINE_SEPARATOR);
+            sb.append('\t').append("Name: ").append(m.getName()).append(ControllerJDBC.LINE_SEPARATOR);
             for (Brand b : m.getBrands()) {
-                sb.append('\t').append('\t').append("Id: ").append(b.getId()).append(LINE_SEPARATOR);
-                sb.append('\t').append('\t').append("Name: ").append(b.getName()).append(LINE_SEPARATOR);
-                sb.append('\t').append('\t').append("Acceleration: ").append(b.getAcceleration()).append(LINE_SEPARATOR);
-                sb.append('\t').append('\t').append("Fuel Consumption: ").append(b.getFuelConsumption()).append(LINE_SEPARATOR);
-                sb.append('\t').append('\t').append("Horsepower: ").append(b.getHorsepower()).append(LINE_SEPARATOR);
-                sb.append('\t').append('\t').append("Weight: ").append(b.getWeight()).append(LINE_SEPARATOR).append(LINE_SEPARATOR);
+                sb.append('\t').append('\t').append("Id: ").append(b.getId()).append(ControllerJDBC.LINE_SEPARATOR);
+                sb.append('\t').append('\t').append("Name: ").append(b.getName()).append(ControllerJDBC.LINE_SEPARATOR);
+                sb.append('\t').append('\t').append("Acceleration: ").append(b.getAcceleration()).append(ControllerJDBC.LINE_SEPARATOR);
+                sb.append('\t').append('\t').append("Fuel Consumption: ").append(b.getFuelConsumption()).append(ControllerJDBC.LINE_SEPARATOR);
+                sb.append('\t').append('\t').append("Horsepower: ").append(b.getHorsepower()).append(ControllerJDBC.LINE_SEPARATOR);
+                sb.append('\t').append('\t').append("Weight: ").append(b.getWeight()).append(ControllerJDBC.LINE_SEPARATOR).append(ControllerJDBC.LINE_SEPARATOR);
             }
         }
         return sb.toString();

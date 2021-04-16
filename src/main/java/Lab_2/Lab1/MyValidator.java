@@ -1,4 +1,4 @@
-package Lab_2.Lab1.AutoShow;
+package Lab_2.Lab1;
 
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;

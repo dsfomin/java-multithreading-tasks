@@ -1,5 +1,7 @@
-package Lab_2.Lab1.AutoShow;
+package Lab_2.Lab1;
 
+import Lab_2.AutoShow.Brand;
+import Lab_2.AutoShow.Manufacturer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -22,7 +24,7 @@ public class DOMParser {
     private Document document = null;
     private String fileName;
 
-    private AutoShow autoShow = null;
+    private AutoShowXML autoShow = null;
 
     public DOMParser(String fileName) {
         this.fileName = fileName;
@@ -33,7 +35,7 @@ public class DOMParser {
             documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilder = documentBuilderFactory.newDocumentBuilder();
             document = documentBuilder.parse(fileName);
-            autoShow = new AutoShow();
+            autoShow = new AutoShowXML();
             analysis();
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
@@ -100,16 +102,16 @@ public class DOMParser {
         }
     }
 
-    public void saveToXML(AutoShow autoShow) throws JAXBException, IOException {
-        JAXBContext contextObj = JAXBContext.newInstance(AutoShow.class);
+    public void saveToXML(AutoShowXML autoShow) throws JAXBException, IOException {
+        JAXBContext contextObj = JAXBContext.newInstance(AutoShowXML.class);
 
         Marshaller marshallerObj = contextObj.createMarshaller();
         marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-        marshallerObj.marshal(autoShow, new FileOutputStream("src/main/resources/Lab2_1.xml"));
+        marshallerObj.marshal(autoShow, new FileOutputStream("src/main/resources/Lab_2_1/Lab2_1.xml"));
     }
 
-    public AutoShow getAutoShow() {
+    public AutoShowXML getAutoShow() {
         return autoShow;
     }
 }

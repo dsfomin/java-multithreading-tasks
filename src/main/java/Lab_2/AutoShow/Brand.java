@@ -1,4 +1,4 @@
-package Lab_2.Lab1.AutoShow;
+package Lab_2.AutoShow;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
