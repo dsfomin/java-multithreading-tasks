@@ -24,9 +24,8 @@ public class Main extends Application {
         }
         String stylesPath = this.getClass().getResource("/style.css").toExternalForm();
         root.getStylesheets().add(stylesPath);
-        Scene scene = new Scene(root);
         primaryStage.setTitle("Distributed Computations - Lab2_1");
-        primaryStage.setScene(scene);
+        primaryStage.setScene(new Scene(root));
         primaryStage.show();
     }
 }
