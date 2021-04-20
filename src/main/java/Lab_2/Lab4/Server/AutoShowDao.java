@@ -1,7 +1,6 @@
-package Lab_2.Lab3.Server;
+package Lab_2.Lab4.Server;
 
 
-import Lab_2.AutoShow.AutoShow;
 import Lab_2.AutoShow.Brand;
 import Lab_2.AutoShow.Manufacturer;
 
@@ -9,7 +8,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AutoShowDao implements AutoShow {
+public class AutoShowDao {
 
     private Connection con;
     private Statement stmt;
@@ -31,20 +30,20 @@ public class AutoShowDao implements AutoShow {
         con.close();
     }
 
-    @Override
-    public void addManufacturer(Manufacturer manufacturer) {
+    public int addManufacturer(Manufacturer manufacturer) {
+        int response = 1;
         String sql = String.format("INSERT INTO manufacturer (id, name) VALUES (%s, '%s')", manufacturer.getId(), manufacturer.getName());
 
         try {
             stmt.executeUpdate(sql);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            throw new IllegalArgumentException("manufacturer with such id: " + manufacturer.getId() + " already exists!");
+            response = 0;
         }
+        return response;
     }
 
-    @Override
-    public void addCarBrandToManufacturer(Brand carBrand, String manufacturerId) {
+    public int addCarBrandToManufacturer(Brand carBrand, String manufacturerId) {
+        int response = 1;
         String sql = String.format("INSERT INTO brand (id, name, fuel_consumption, weight, acceleration, horsepower, manufacturer_id) VALUES (%s, '%s', %s, %s, %s, %s, %s)",
                 carBrand.getId(),
                 carBrand.getName(),
@@ -56,28 +55,17 @@ public class AutoShowDao implements AutoShow {
         try {
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
-            throw new IllegalArgumentException(
-                    "manufacturer with id: " + manufacturerId + " doesn't exists\n" +
-                            "or brand with id: " + carBrand.getId() + " already exists!");
+            response = 0;
         }
+        return response;
     }
 
-    @Override
-    public void deleteManufacturer(String manufacturerId) throws SQLException {
+    public int deleteManufacturer(String manufacturerId) throws SQLException {
         String sql = "DELETE FROM manufacturer WHERE id = " + manufacturerId;
 
-        int c = stmt.executeUpdate(sql);
-        if (!(c > 0)) {
-            throw new IllegalArgumentException("manufacturer with such id: " + manufacturerId + " doesn't exists!");
-        }
+        return stmt.executeUpdate(sql);
     }
 
-    @Override
-    public void deleteBrandManufacturer(Brand carBrand, Manufacturer manufacturer) {
-    }
-
-    @Override
     public List<Manufacturer> getManufacturers() throws SQLException {
         List<Manufacturer> result = new ArrayList<>();
         String sql1 = "SELECT * FROM manufacturer";
@@ -138,9 +126,5 @@ public class AutoShowDao implements AutoShow {
             con.setAutoCommit(true);
         }
         return result;
-    }
-
-    @Override
-    public void save() {
     }
 }

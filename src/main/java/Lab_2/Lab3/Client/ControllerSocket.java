@@ -19,10 +19,10 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ControllerSocket {
     private final static String LINE_SEPARATOR = System.lineSeparator();
-    private final List<Manufacturer> manufacturers = new ArrayList<>();
     private final Client client = new Client("localhost", 12345);
 
     @FXML
@@ -298,7 +298,7 @@ public class ControllerSocket {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-        Text text = new Text(printAllManufacturers(manufacturers));
+        Text text = new Text(printAllManufacturers(Objects.requireNonNull(manufacturers)));
         text.wrappingWidthProperty().bind(scene.widthProperty());
         root.setFitToWidth(true);
         root.setFitToHeight(true);
@@ -307,8 +307,6 @@ public class ControllerSocket {
         stage.setTitle("List of manufacturers");
         stage.setScene(scene);
         stage.show();
-
-        System.out.println(this.manufacturers.toString());
     }
 
     private String printAllManufacturers(List<Manufacturer> manufacturers) {
