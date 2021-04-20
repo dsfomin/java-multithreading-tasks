@@ -292,8 +292,9 @@ public class ControllerSocket {
         ScrollPane root = new ScrollPane();
         Scene scene = new Scene(root);
 
+        List<Manufacturer> manufacturers = null;
         try {
-            List<Manufacturer> manufacturers = client.getManufacturers();
+            manufacturers = client.getManufacturers();
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
