@@ -48,4 +48,5 @@
             <horsepower>150</horsepower>
         </brand>
     </manufacturer>
+    <manufacturer id="m3" name="m3"/>
 </autoshow>

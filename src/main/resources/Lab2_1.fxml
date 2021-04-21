@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 
 <AnchorPane prefHeight="200" prefWidth="300" xmlns="http://javafx.com/javafx/10.0.2-internal"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="Lab_2.Lab4.Client.ControllerRMI">
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="Lab_2.Lab3.Client.ControllerSocket">
     <Button fx:id="addManufacturerButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#addManufacturer" text="Add Manufacturer"/>
     <Button fx:id="getManufacturersButton" layoutX="10.0" layoutY="50.0" mnemonicParsing="false" onAction="#getManufacturers" text="Show Manufacturers"/>
     <Button fx:id="addCarBrandButton" layoutX="10.0" layoutY="90.0" mnemonicParsing="false" onAction="#addCarBrand" text="Add Brand"/>
