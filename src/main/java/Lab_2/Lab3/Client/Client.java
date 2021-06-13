@@ -3,7 +3,6 @@ package Lab_2.Lab3.Client;
 import Lab_2.AutoShow.Brand;
 import Lab_2.AutoShow.Manufacturer;
 
-import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;

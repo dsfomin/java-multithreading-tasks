@@ -1,77 +1,70 @@
 package Lab_2.Lab5.Server;
 
-import com.ibm.mq.*;
-import com.ibm.mq.MQQueue;
-import com.ibm.mq.jms.*;
-import com.ibm.msg.client.jms.JmsConnectionFactory;
-import com.ibm.msg.client.jms.JmsFactoryFactory;
-import com.ibm.msg.client.wmq.WMQConstants;
-import com.ibm.msg.client.wmq.compat.jms.internal.JMSC;
-import com.ibm.msg.client.wmq.compat.jms.internal.JMSMessage;
-import com.ibm.msg.client.wmq.compat.jms.internal.JMSTextMessage;
+
+import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.*;
 
-public class Server {
-    private MQQueueConnectionFactory cf;
-    private MQQueueSession session;
-    private MQQueueConnection connection;
+public class Server implements ExceptionListener {
+    ActiveMQConnectionFactory connectionFactory;
 
-    private MQQueueManager QM = null; // Менеджер очередей
+    Connection connection;
 
-    private MQQueue queue1 = null; // Очередь запросов
-    private MQQueueSender sender1 = null;
-    private MQQueueReceiver receiver1 = null;
+    Session session;
 
-    private MQQueue queue2 = null; // Очередь запросов
-    private MQQueueSender sender2 = null;
-    private MQQueueReceiver receiver2 = null;
+    Destination destination1;
+    Destination destination2;
+
+    MessageProducer producer1;
+    MessageConsumer consumer1;
+
+    MessageProducer producer2;
+    MessageConsumer consumer2;
 
     // Запуск сервера
     public void start(String QMName, String IP, int port,
                       String channel, String Q1_name, String Q2_name)
-            throws MQException, JMSException {
+            throws JMSException {
         try {
-            cf = new MQQueueConnectionFactory();
+            connectionFactory = new ActiveMQConnectionFactory("admin","admin","tcp://localhost:61611");
 
-            // Config
-            cf.setHostName(IP);
-            cf.setPort(port);
-            cf.setTransportType(JMSC.MQJMS_TP_CLIENT_MQ_TCPIP);
-            cf.setQueueManager(QMName);
-            cf.setChannel(channel);
+            // Create a Connection
+            connection = connectionFactory.createConnection();
+            connection.setExceptionListener(this);
 
-            connection = (MQQueueConnection) cf.createQueueConnection();
-            session = (MQQueueSession) connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
+            // Create a Session
+            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-            queue1 = (MQQueue) session.createQueue("queue:///" + Q1_name);
-            receiver1 = (MQQueueReceiver) session.createReceiver((Queue) queue1);
-            sender1 = (MQQueueSender) session.createSender((Queue) queue1);
+            // Create the destination (Topic or Queue)
+            destination1 = session.createQueue("CL.SRV");
 
-            queue2 = (MQQueue) session.createQueue("queue:///" + Q2_name);
-            sender2 = (MQQueueSender) session.createSender((Queue) queue2);
-            receiver2 = (MQQueueReceiver) session.createReceiver((Queue) queue2);
+            // Create a MessageProducer from the Session to the Topic or Queue
+            producer1 = session.createProducer(destination1);
+            producer1.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+            consumer1 = session.createConsumer(destination1);
 
-            long uniqueNumber = System.currentTimeMillis() % 1000;
-            JMSTextMessage message = (JMSTextMessage) session.createTextMessage("SimplePTP " + uniqueNumber);
+            // Create the destination (Topic or Queue)
+            destination2 = session.createQueue("SRV.CL");
 
-            // Start the connection
+            // Create a MessageProducer from the Session to the Topic or Queue
+            producer2 = session.createProducer(destination2);
+            producer2.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+            consumer2 = session.createConsumer(destination2);
+
             connection.start();
 
-            int i = 0;
-            while (processQuery()) i++;
-
+            while (processQuery()) {}
             System.out.println("\\nSUCCESS\\n");
+
+            producer1.close();
+            consumer1.close();
+            producer2.close();
+            consumer2.close();
+            session.close();
+            connection.close();
         } catch (Exception jmsex) {
             System.out.println(jmsex.getMessage());
             System.out.println("\\nFAILURE\\n");
-        } finally {
-            sender1.close();
-            sender2.close();
-            receiver2.close();
-            receiver1.close();
-            session.close();
-            connection.close();
         }
     }
 
@@ -79,42 +72,48 @@ public class Server {
     // Обработка сообщения-запроса
     public boolean processQuery() {
         try {
-            // Настраиваю интервал ожидания 3 сек.
-            MQGetMessageOptions gmo = new MQGetMessageOptions();
-            gmo.waitInterval = 3000;
 
             // Читаю сообщение из очереди запросов
-            MQMessage receivedMessage = (MQMessage) receiver2.receive(10000);
-            System.out.println("\\nReceived message:\\n" + receivedMessage);
+            TextMessage receivedMessage = (TextMessage) consumer1.receive(1000);
+            System.out.println("Received message:" + receivedMessage);
 
             // Обрабатываю сообщение
-            int oper = receivedMessage.readInt(); // Операция
-            int v1 = receivedMessage.readInt(); // Число1
-            int v2 = receivedMessage.readInt(); // Число2
+            if (receivedMessage != null) {
+                int oper = receivedMessage.getIntProperty("operation"); // Операция
+                int v1 = receivedMessage.getIntProperty("value1"); // Число1
+                int v2 = receivedMessage.getIntProperty("value2");  // Число2
 
-            // Считаю результат
-            int result; // Результат операции
-            result = (oper == 0) ? (v1 + v2) : (v1 - v2);
+                // Считаю результат
+                int result; // Результат операции
+                result = (oper == 0) ? (v1 + v2) : (v1 - v2);
 
-            // Формирую ответ
-            MQMessage response = new MQMessage();
-            response.writeInt(oper);
-            response.writeInt(v1);
-            response.writeInt(v2);
-            response.writeInt(result);
+                // Формирую ответ
+                Message response = session.createMessage();
+                Message query = session.createMessage();
+                query.setIntProperty("operation", oper); // Операция
+                query.setIntProperty("value1", v1); // Число1
+                query.setIntProperty("value2", v2); // Число2
+                query.setIntProperty("result", result); // Число2
 
-            // Отправляю ответ
-            sender1.send((Message) response);
+                // Отправляю ответ
+                producer2.send(response);
+            }
             return true;
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return false;
         }
     }
 
     public static void main(String[] args)
-            throws MQException, JMSException {
+            throws JMSException {
         (new Server()).start("QM1", "localhost", 1414,
                 "SYSTEM.DEF.SVRCONN",
                 "SRV.Q", "CL.Q");
+    }
+
+    @Override
+    public void onException(JMSException exception) {
+        System.out.println("JMS Exception occured.  Shutting down client.");
     }
 }

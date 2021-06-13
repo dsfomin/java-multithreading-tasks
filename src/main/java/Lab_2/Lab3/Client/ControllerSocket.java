@@ -16,10 +16,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class ControllerSocket {
     private final static String LINE_SEPARATOR = System.lineSeparator();
@@ -298,7 +295,7 @@ public class ControllerSocket {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-        Text text = new Text(printAllManufacturers(Objects.requireNonNull(manufacturers)));
+        Text text = new Text(printAllManufacturers(manufacturers));
         text.wrappingWidthProperty().bind(scene.widthProperty());
         root.setFitToWidth(true);
         root.setFitToHeight(true);

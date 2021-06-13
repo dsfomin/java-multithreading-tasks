@@ -1,147 +1,123 @@
 package Lab_2.Lab5.Client;
 
-import com.ibm.mq.*;
-import com.ibm.mq.MQQueue;
-import com.ibm.mq.jms.*;
-import com.ibm.msg.client.wmq.compat.jms.internal.JMSC;
-import com.ibm.msg.client.wmq.compat.jms.internal.JMSTextMessage;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.Queue;
-import javax.jms.Session;
+import org.apache.activemq.ActiveMQConnectionFactory;
+
+import javax.jms.*;
 import java.io.IOException;
-public class Client
-{
-    private MQQueueConnectionFactory cf;
-    private MQQueueSession session;
-    private MQQueueConnection connection;
 
-    private MQQueueManager QM = null; // Менеджер очередей
+public class Client {
+    ActiveMQConnectionFactory connectionFactory;
 
-    private MQQueue queue1 = null; // Очередь запросов
-    private MQQueueSender sender1 = null;
-    private MQQueueReceiver receiver1 = null;
+    Connection connection;
 
-    private MQQueue queue2 = null; // Очередь запросов
-    private MQQueueSender sender2 = null;
-    private MQQueueReceiver receiver2 = null;
-    // конструктор
+    Session session;
+
+    Destination destination1;
+    Destination destination2;
+
+    MessageProducer producer1;
+    MessageConsumer consumer1;
+
+    MessageProducer producer2;
+    MessageConsumer consumer2;
+
     public Client(String QMName, String IP,
                   int port, String channel,
-                  String Q1_name, String Q2_name)
-            throws IOException, MQException, JMSException {
-        cf = new MQQueueConnectionFactory();
+                  String Q1_name, String Q2_name) throws IOException, JMSException {
+        connectionFactory = new ActiveMQConnectionFactory("admin","admin","tcp://localhost:61611");
 
-        // Config
-        cf.setHostName(IP);
-        cf.setPort(port);
-        cf.setTransportType(JMSC.MQJMS_TP_CLIENT_MQ_TCPIP);
-        cf.setQueueManager(QMName);
-        cf.setChannel(channel);
+        // Create a Connection
+        connection = connectionFactory.createConnection();
 
-        connection = (MQQueueConnection) cf.createQueueConnection();
-        session = (MQQueueSession) connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
+        // Create a Session
+        session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        queue1 = (MQQueue) session.createQueue("queue:///" + Q1_name);
-        sender1 = (MQQueueSender) session.createSender((Queue) queue1);
-        receiver1 = (MQQueueReceiver) session.createReceiver((Queue) queue1);
+        // Create the destination (Topic or Queue)
+        destination1 = session.createQueue("CL.SRV");
 
-        queue2 = (MQQueue) session.createQueue("queue:///" + Q2_name);
-        sender2 = (MQQueueSender) session.createSender((Queue) queue2);
-        receiver2 = (MQQueueReceiver) session.createReceiver((Queue) queue2);
+        // Create a MessageProducer from the Session to the Topic or Queue
+        producer1 = session.createProducer(destination1);
+        producer1.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+        consumer1 = session.createConsumer(destination1);
 
-        long uniqueNumber = System.currentTimeMillis() % 1000;
-        JMSTextMessage message = (JMSTextMessage) session.createTextMessage("SimplePTP " + uniqueNumber);
+        // Create the destination (Topic or Queue)
+        destination2 = session.createQueue("SRV.CL");
 
-        // Start the connection
+        // Create a MessageProducer from the Session to the Topic or Queue
+        producer2 = session.createProducer(destination2);
+        producer2.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+        consumer2 = session.createConsumer(destination2);
+
         connection.start();
     }
+
     // отправить запрос серверу
     private void sendQuery(int operation, int value1, int value2)
-            throws IOException, MQException, JMSException {
+            throws IOException, JMSException {
         // Создаю сообщение-запрос
-        MQMessage query = new MQMessage();
-        query.writeInt(operation); // Операция
-        query.writeInt(value1); // Число1
-        query.writeInt(value2); // Число2
+        String text = "Hello world! From: " + Thread.currentThread().getName() + " : " + this.hashCode();
+        TextMessage message = session.createTextMessage(text);
 
         // Записываю в очередь запросов
-        sender2.send((Message) query);
+        System.out.println("Send query " + message.toString());
+        producer1.send(message);
     }
+
     // посчитать сумму чисел
     public void sum(int value1, int value2)
-            throws IOException, MQException, JMSException {
+            throws IOException, JMSException {
         sendQuery(0, value1, value2);
     }
 
     // посчитать разность чисел
     public void sub(int value1, int value2)
-            throws IOException, MQException, JMSException {
+            throws IOException, JMSException {
         sendQuery(1, value1, value2);
     }
 
     // Получить ответ от сервера
-    public boolean printResult()
-    {
-        try
-        {
+    public boolean printResult() {
+        try {
             // Читаю сообщение из очереди ответов
-            MQMessage response = new MQMessage();
-            receiver1.receive();
-            int oper = response.readInt(); // Операция
-            int v1 = response.readInt(); // Число1
-            int v2 = response.readInt(); // Число2
-            int res = response.readInt(); // Результат
-            String s = (oper==0)? "+" : "-";
-            System.out.println(v1 + s + v2 + " = " + res);
+            Message message = consumer2.receive(1000);
+            if (message != null) {
+                int oper = message.getIntProperty("operation"); // Операция
+                int v1 = message.getIntProperty("value1"); // Число1
+                int v2 = message.getIntProperty("value2"); // Число2
+                int res = message.getIntProperty("result"); // Результат
+                String s = (oper == 0) ? "+" : "-";
+                System.out.println(v1 + s + v2 + " = " + res);
+            }
             return true;
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
+            System.out.println("WTF" + e.getMessage());
             return false;
         }
     }
+
     // отсоединиться
     public void disconnect()
-            throws IOException, MQException, JMSException {
-        sender1.close();
-        sender2.close();
-        receiver2.close();
-        receiver1.close();
+            throws JMSException {
+        producer1.close();
+        consumer1.close();
+        producer2.close();
+        consumer2.close();
         session.close();
         connection.close();
     }
-    // ПЕРВЫЙ ЗАПУСК КЛИЕНТА
-    public static void main1()
-    {
-        try
-        {
-            Client client = new Client("QM1","localhost",
+
+    public static void main(String[] args) throws IOException, JMSException {
+        try {
+            Client client = new Client("QM1", "localhost",
                     1414, "SYSTEM.DEF.SVRCONN",
-                    "SRV.Q","CL.Q");
-            client.sum(15,20);
-            client.sub(30,38);
-            client.sum(100,200);
+                    "SRV.Q", "CL.Q");
+            client.sum(15, 20);
+            client.sub(30, 38);
+            client.sum(100, 200);
             client.disconnect();
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    // ВТОРОЙ ЗАПУСК КЛИЕНТА
-    public static void main2()
-            throws IOException, MQException, JMSException {
-        Client client = new Client("QM1","localhost",
-                1414, "SYSTEM.DEF.SVRCONN",
-                "SRV.Q","CL.Q");
-        while (client.printResult());
-    }
-    public static void main(String[] args)
-            throws IOException, MQException
-    {
-        main1(); // или main2()
     }
 }
